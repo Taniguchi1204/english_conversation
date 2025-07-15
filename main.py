@@ -56,9 +56,6 @@ if "messages" not in st.session_state:
         return_messages=True
     )
 
-    # モード「日常英会話」用のChain作成
-    st.session_state.chain_basic_conversation = ft.create_chain(ct.SYSTEM_TEMPLATE_BASIC_CONVERSATION)
-
 # 初期表示
 # col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 # 提出課題用
@@ -138,7 +135,11 @@ if st.session_state.start_flg:
     # 「ディクテーション」ボタン押下時か、「英会話開始」ボタン押下時か、チャット送信時
     if st.session_state.mode == ct.MODE_3 and (st.session_state.dictation_button_flg or st.session_state.dictation_count == 0 or st.session_state.dictation_chat_message):
         if st.session_state.dictation_first_flg:
-            st.session_state.chain_create_problem = ft.create_chain(ct.SYSTEM_TEMPLATE_CREATE_PROBLEM)
+            system_template = ct.SYSTEM_TEMPLATE_CREATE_PROBLEM.format(
+                level=st.session_state.englv,
+                mode=st.session_state.mode
+            )
+            st.session_state.chain_create_problem = ft.create_chain(system_template)
             st.session_state.dictation_first_flg = False
         # チャット入力以外
         if not st.session_state.chat_open_flg:
@@ -190,6 +191,13 @@ if st.session_state.start_flg:
     
     # モード：「日常英会話」
     if st.session_state.mode == ct.MODE_1:
+        system_template = ct.SYSTEM_TEMPLATE_BASIC_CONVERSATION.format(
+                level=st.session_state.englv
+            )
+
+        # モード「日常英会話」用のChain作成
+        st.session_state.chain_basic_conversation = ft.create_chain(system_template)
+        
         # 音声入力を受け取って音声ファイルを作成
         audio_input_file_path = f"{ct.AUDIO_INPUT_DIR}/audio_input_{int(time.time())}.wav"
         ft.record_audio(audio_input_file_path)
@@ -234,7 +242,11 @@ if st.session_state.start_flg:
     # 「シャドーイング」ボタン押下時か、「英会話開始」ボタン押下時
     if st.session_state.mode == ct.MODE_2 and (st.session_state.shadowing_button_flg or st.session_state.shadowing_count == 0 or st.session_state.shadowing_audio_input_flg):
         if st.session_state.shadowing_first_flg:
-            st.session_state.chain_create_problem = ft.create_chain(ct.SYSTEM_TEMPLATE_CREATE_PROBLEM)
+            system_template = ct.SYSTEM_TEMPLATE_CREATE_PROBLEM.format(
+                level=st.session_state.englv,
+                mode=st.session_state.mode
+            )
+            st.session_state.chain_create_problem = ft.create_chain(system_template)
             st.session_state.shadowing_first_flg = False
         
         if not st.session_state.shadowing_audio_input_flg:
